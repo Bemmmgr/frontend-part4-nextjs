@@ -30,7 +30,7 @@ export default function RootLayout({
         {/* 012 - theme mode toggle */}
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
