@@ -1,6 +1,5 @@
-export const metadata = {
-  title: "Home",
-};
+import sampleData from "../../../db/sample-data";
+import ProductList from "@/components/shared/product/product-list";
 
 /*    test loading
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -12,7 +11,19 @@ const HomePage = async () => {
 */
 
 const HomePage = () => {
-  return <>ProStore!</>;
+  return (
+    <>
+      <ProductList
+        data={sampleData.products}
+        limit={4}
+        title="Newest Arrivals"
+      />
+    </>
+  );
+};
+
+export const metadata = {
+  title: "Home",
 };
 
 export default HomePage;
