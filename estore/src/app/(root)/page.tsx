@@ -1,5 +1,9 @@
-import sampleData from "../../../db/sample-data";
 import ProductList from "@/components/shared/product/product-list";
+import { getLatestProducts } from "@/lib/actions/product.actions";
+
+export const metadata = {
+  title: "Home",
+};
 
 /*    test loading
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -10,20 +14,14 @@ const HomePage = async () => {
 };
 */
 
-const HomePage = () => {
+const HomePage = async () => {
+  const latestProducts = await getLatestProducts();
+
   return (
     <>
-      <ProductList
-        data={sampleData.products}
-        limit={4}
-        title="Newest Arrivals"
-      />
+      <ProductList data={latestProducts} limit={4} title="Newest Arrivals" />
     </>
   );
-};
-
-export const metadata = {
-  title: "Home",
 };
 
 export default HomePage;
