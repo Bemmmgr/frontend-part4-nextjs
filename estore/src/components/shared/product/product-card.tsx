@@ -2,9 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import ProductPrice from "./product-price";
+import { Product } from "@/types";
 
 // 016 - product card component
-const ProductCard = ({ product }: { product: any }) => {
+const ProductCard = ({ product }: { product: Product }) => {
   return (
     <Card>
       <CardHeader className="p-0 items-center">
