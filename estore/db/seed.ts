@@ -1,11 +1,9 @@
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { createPrismaClient } from "../src/db/prisma";
 import sampleData from "./sample-data";
 
 // 021 - seed sample data - 开发库初始化工作
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter });
+const prisma = createPrismaClient();
 
 async function main() {
   await prisma.product.deleteMany();
