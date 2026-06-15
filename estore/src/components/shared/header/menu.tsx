@@ -11,6 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import UserButton from "./user-button";
 
 // 014 - responsive sheet menu
 const Menu = () => {
@@ -24,12 +25,9 @@ const Menu = () => {
           </Link>
         </Button>
 
-        <Button asChild>
-          <Link href="/sign-in">
-            <UserIcon /> Sign In
-          </Link>
-        </Button>
+        <UserButton />
       </nav>
+
       <nav className="md:hidden">
         <Sheet>
           <SheetTrigger className="align-middle">
@@ -44,11 +42,8 @@ const Menu = () => {
               </Link>
             </Button>
 
-            <Button asChild>
-              <Link href="/sign-in">
-                <UserIcon /> Sign In
-              </Link>
-            </Button>
+            <UserButton />
+
             <SheetDescription></SheetDescription>
           </SheetContent>
         </Sheet>
