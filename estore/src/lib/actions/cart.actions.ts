@@ -25,7 +25,11 @@ const calcPrice = (items: CartItem[]) => {
     items.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0),
   );
   const shippingPrice = round2(
-    itemsPrice > FREE_SHIPPING_MIN_PRICE ? 0 : SHIPPING_PRICE,
+    itemsPrice === 0
+      ? 0
+      : itemsPrice > FREE_SHIPPING_MIN_PRICE
+        ? 0
+        : SHIPPING_PRICE,
   );
   const taxPrice = round2(TAX_RATE * itemsPrice);
   const totalPrice = round2(itemsPrice + taxPrice + shippingPrice);
@@ -109,7 +113,7 @@ export async function addItemToCart(data: CartItem) {
 
     return {
       success: true,
-      message: "Item added to cart successfully",
+      message: `${product.name} ${existingItem ? "updated in" : "added to"} cart`,
     };
   } catch (error) {
     return {
@@ -243,4 +247,50 @@ function mergeCartItems(currentItems: CartItem[], incomingItems: CartItem[]) {
   }
 
   return mergedItems;
+}
+
+// 051 - remove cart action
+export async function removeItemFromCart(productId: string) {
+  try {
+    const { sessionCartId, userId } = await getCartContext();
+
+    if (!sessionCartId) throw new Error("Cart session not found");
+
+    const cart = await getCurrentCart(sessionCartId, userId);
+    if (!cart) throw new Error("Cart not found");
+
+    // check for item
+    const item = cart.items.find((x) => x.productId === productId);
+    if (!item) throw new Error("Item not found in cart");
+
+    const items =
+      item.quantity === 1
+        ? cart.items.filter((x) => x.productId !== productId)
+        : cart.items.map((x) =>
+            x.productId === productId ? { ...x, quantity: x.quantity - 1 } : x,
+          );
+
+    if (items.length === 0) {
+      await prisma.cart.delete({
+        where: { id: cart.id },
+      });
+    } else {
+      await prisma.cart.update({
+        where: { id: cart.id },
+        data: {
+          items,
+          ...calcPrice(items),
+        },
+      });
+    }
+
+    revalidatePath("/cart");
+
+    return {
+      success: true,
+      message: `${item.name} removed from cart`,
+    };
+  } catch (error) {
+    return { success: false, message: await formatError(error) };
+  }
 }
