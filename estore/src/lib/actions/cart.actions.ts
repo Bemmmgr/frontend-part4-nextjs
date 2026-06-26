@@ -3,18 +3,40 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import type { CartItem } from "@/types";
-import { converToPlainObject, formatError } from "../utils";
+import { converToPlainObject, formatError, round2 } from "../utils";
 import { auth } from "@/auth";
 import { prisma } from "@/db/prisma";
-import { cartItemSchema } from "../validators";
+import { cartItemSchema, insertCartSchema } from "../validators";
 
-const CART_COOKIE = "sessionCartId";
-const TAX_RATE = 0.15;
-const SHIPPING_PRICE = 10;
-const FREE_SHIPPING_MIN_PRICE = 100;
+import {
+  CART_COOKIE,
+  CART_MAX_AGE,
+  FREE_SHIPPING_MIN_PRICE,
+  SHIPPING_PRICE,
+  TAX_RATE,
+} from "../constants";
 
 type CartRow = NonNullable<Awaited<ReturnType<typeof prisma.cart.findFirst>>>;
 type ParsedCartRow = Omit<CartRow, "items"> & { items: CartItem[] };
+
+// 049 - price Calc
+const calcPrice = (items: CartItem[]) => {
+  const itemsPrice = round2(
+    items.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0),
+  );
+  const shippingPrice = round2(
+    itemsPrice > FREE_SHIPPING_MIN_PRICE ? 0 : SHIPPING_PRICE,
+  );
+  const taxPrice = round2(TAX_RATE * itemsPrice);
+  const totalPrice = round2(itemsPrice + taxPrice + shippingPrice);
+
+  return {
+    itemsPrice: itemsPrice.toFixed(2),
+    shippingPrice: shippingPrice.toFixed(2),
+    taxPrice: taxPrice.toFixed(2),
+    totalPrice: totalPrice.toFixed(2),
+  };
+};
 
 // 046 - add to cart actions
 export async function addItemToCart(data: CartItem) {
@@ -23,7 +45,13 @@ export async function addItemToCart(data: CartItem) {
     const item = cartItemSchema.parse(data);
 
     // check for cart cookie and current user
-    const { sessionCartId, userId } = await getCartContext();
+    const { sessionCartId, userId } = await getCartContext({
+      createCartCookie: true,
+    });
+
+    if (!sessionCartId) {
+      throw new Error("Cart session not found");
+    }
 
     // find product in database
     const product = await prisma.product.findFirst({
@@ -32,6 +60,7 @@ export async function addItemToCart(data: CartItem) {
 
     if (!product) throw new Error("Product not found");
 
+    // TODO: Build the cart item from database product data before checkout.
     // get Cart, merging an anonymous cart into the user cart when needed
     const cart = await getCurrentCart(sessionCartId, userId);
     const existingItem = cart?.items.find(
@@ -54,20 +83,24 @@ export async function addItemToCart(data: CartItem) {
         : [...cart.items, item]
       : [item];
 
-    const cartData = buildCartData(items);
-
     if (cart) {
       await prisma.cart.update({
         where: { id: cart.id },
-        data: cartData,
+        data: {
+          items,
+          ...calcPrice(items),
+        },
       });
     } else {
+      const newCart = insertCartSchema.parse({
+        userId,
+        items,
+        sessionCartId,
+        ...calcPrice(items),
+      });
+
       await prisma.cart.create({
-        data: {
-          ...cartData,
-          sessionCartId,
-          userId,
-        },
+        data: newCart,
       });
     }
 
@@ -88,6 +121,9 @@ export async function addItemToCart(data: CartItem) {
 
 export async function getMyCart() {
   const { sessionCartId, userId } = await getCartContext();
+
+  if (!sessionCartId) return undefined;
+
   const cart = await getCurrentCart(sessionCartId, userId);
 
   if (!cart) return undefined;
@@ -102,11 +138,23 @@ export async function getMyCart() {
   });
 }
 
-async function getCartContext() {
-  const sessionCartId = (await cookies()).get(CART_COOKIE)?.value;
+async function getCartContext({
+  createCartCookie = false,
+}: {
+  createCartCookie?: boolean;
+} = {}) {
+  const cookieStore = await cookies();
+  let sessionCartId = cookieStore.get(CART_COOKIE)?.value;
 
-  if (!sessionCartId) {
-    throw new Error("Cart session not found");
+  if (!sessionCartId && createCartCookie) {
+    sessionCartId = crypto.randomUUID();
+    cookieStore.set(CART_COOKIE, sessionCartId, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: CART_MAX_AGE,
+    });
   }
 
   const session = await auth();
@@ -122,6 +170,7 @@ async function getCurrentCart(
   sessionCartId: string,
   userId?: string,
 ): Promise<ParsedCartRow | undefined> {
+  // TODO: Add Cart unique constraints, then replace findFirst with findUnique/upsert.
   const anonymousCart = await prisma.cart.findFirst({
     where: {
       sessionCartId,
@@ -150,6 +199,7 @@ async function getCurrentCart(
     return parseCart(connectedCart);
   }
 
+  // TODO: Validate merged quantities against product stock when merge rules are finalized.
   const mergedItems = mergeCartItems(
     parseCart(userCart).items,
     parseCart(anonymousCart).items,
@@ -157,7 +207,10 @@ async function getCurrentCart(
 
   const updatedUserCart = await prisma.cart.update({
     where: { id: userCart.id },
-    data: buildCartData(mergedItems),
+    data: {
+      items: mergedItems,
+      ...calcPrice(mergedItems),
+    },
   });
 
   await prisma.cart.delete({
@@ -190,27 +243,4 @@ function mergeCartItems(currentItems: CartItem[], incomingItems: CartItem[]) {
   }
 
   return mergedItems;
-}
-
-function buildCartData(items: CartItem[]) {
-  const itemsPrice = items.reduce(
-    (sum, item) => sum + Number(item.price) * item.quantity,
-    0,
-  );
-  const shippingPrice =
-    itemsPrice > FREE_SHIPPING_MIN_PRICE ? 0 : SHIPPING_PRICE;
-  const taxPrice = itemsPrice * TAX_RATE;
-  const totalPrice = itemsPrice + shippingPrice + taxPrice;
-
-  return {
-    items,
-    itemsPrice: formatPrice(itemsPrice),
-    shippingPrice: formatPrice(shippingPrice),
-    taxPrice: formatPrice(taxPrice),
-    totalPrice: formatPrice(totalPrice),
-  };
-}
-
-function formatPrice(value: number) {
-  return Number(value.toFixed(2)).toFixed(2);
 }

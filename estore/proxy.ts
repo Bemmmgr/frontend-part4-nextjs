@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
+import { CART_COOKIE, CART_MAX_AGE } from "@/lib/constants";
 import { NextResponse } from "next/server";
-
-const CART_COOKIE = "sessionCartId";
-const CART_MAX_AGE = 60 * 60 * 24 * 30;
 
 export const proxy = auth((request) => {
   if (request.cookies.get(CART_COOKIE)) {
