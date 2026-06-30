@@ -10,6 +10,16 @@ const currency = z
     "Price must have exactly two decimal places ",
   );
 
+const optionalCoordinate = (min: number, max: number, label: string) =>
+  z.preprocess(
+    (value) => (value === "" || value == null ? undefined : value),
+    z.coerce
+      .number()
+      .min(min, `${label} must be at least ${min}`)
+      .max(max, `${label} must be at most ${max}`)
+      .optional(),
+  );
+
 export const insetProductsSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   slug: z.string().min(3, "Slug must be at least 3 characters"),
@@ -63,4 +73,35 @@ export const insertCartSchema = z.object({
   taxPrice: currency,
   sessionCartId: z.string().min(1, "Session cart ID is required"),
   userId: z.string().optional().nullable(),
+});
+
+// 058 - schema for shipping address
+export const shippingAddressSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(3, "Name must be at least 3 characters")
+    .max(50, "Name must be at most 50 characters"),
+  streetAddress: z
+    .string()
+    .trim()
+    .min(3, "Address must be at least 3 characters")
+    .max(100, "Address must be at most 100 characters"),
+  city: z
+    .string()
+    .trim()
+    .min(2, "City must be at least 2 characters")
+    .max(50, "City must be at most 50 characters"),
+  postalCode: z
+    .string()
+    .trim()
+    .min(3, "Postal code must be at least 3 characters")
+    .max(20, "Postal code must be at most 20 characters"),
+  country: z
+    .string()
+    .trim()
+    .min(2, "Country must be at least 2 characters")
+    .max(60, "Country must be at most 60 characters"),
+  lat: optionalCoordinate(-90, 90, "Latitude"),
+  lng: optionalCoordinate(-180, 180, "Longitude"),
 });

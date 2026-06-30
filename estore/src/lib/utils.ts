@@ -49,3 +49,20 @@ export function round2(value: number | string) {
     throw new Error("value is not a number or string");
   }
 }
+
+// 057 - currency fomatter
+const CURRENCY_FOMATTER = new Intl.NumberFormat("en-US", {
+  currency: "USD",
+  style: "currency",
+  minimumFractionDigits: 2,
+});
+
+export function fomatCurrency(amount: number | string | null) {
+  if (typeof amount === "number") {
+    return CURRENCY_FOMATTER.format(amount);
+  } else if (typeof amount === "string") {
+    return CURRENCY_FOMATTER.format(Number(amount));
+  } else {
+    return "NaN";
+  }
+}

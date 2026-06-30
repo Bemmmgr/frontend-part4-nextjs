@@ -3,6 +3,7 @@ import {
   insetProductsSchema,
   insertCartSchema,
   cartItemSchema,
+  shippingAddressSchema,
 } from "@/lib/validators";
 
 // 023 - zod calidation & type inference
@@ -15,3 +16,4 @@ export type Product = z.infer<typeof insetProductsSchema> & {
 // 045 - infer types of cart
 export type Cart = z.infer<typeof insertCartSchema>;
 export type CartItem = z.infer<typeof cartItemSchema>;
+export type ShippingAddress = z.infer<typeof shippingAddressSchema>;
