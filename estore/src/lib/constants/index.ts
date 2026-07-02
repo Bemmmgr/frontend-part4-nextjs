@@ -26,7 +26,7 @@ export const signUpDefaultValue = {
   confirmpassword: "",
 };
 
-export const shippingAddressDefault = {
+export const shippingAddressDefaultValues = {
   fullName: "John Doe",
   streetAddress: "abc Main st",
   city: "AnyTown",
