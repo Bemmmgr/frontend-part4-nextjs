@@ -11,7 +11,6 @@ import { hashSync } from "bcrypt-ts-edge";
 import { prisma } from "@/db/prisma";
 import { formatError } from "../utils";
 import { ShippingAddress } from "@/types";
-import { success } from "zod";
 
 // 034 - signIn & signOut actions
 // Sign in user with credentials
@@ -25,7 +24,12 @@ export async function signInwithCredentials(
       password: formdata.get("password"),
     });
 
-    await signIn("credentials", user);
+    const callbackUrl = formdata.get("callbackUrl") as string;
+
+    await signIn("credentials", {
+      ...user,
+      redirectTo: callbackUrl || "/",
+    });
 
     return { success: true, message: "Signed in successfully" };
   } catch (error) {
@@ -53,6 +57,8 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
     });
 
     const plainPassword = user.password;
+    const callbackUrl = formData.get("callbackUrl") as string;
+
     user.password = hashSync(user.password, 10);
 
     // add to database
@@ -67,6 +73,7 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
     await signIn("credentials", {
       email: user.email,
       password: plainPassword,
+      redirectTo: callbackUrl || "/",
     });
 
     return { success: true, message: "User registered successfully" };
