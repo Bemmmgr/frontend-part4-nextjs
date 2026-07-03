@@ -27,9 +27,9 @@ export const signUpDefaultValue = {
 };
 
 export const shippingAddressDefaultValues = {
-  fullName: "John Doe",
-  streetAddress: "abc Main st",
-  city: "AnyTown",
-  postalCode: "123ab",
-  country: "Netherlands",
+  fullName: "",
+  streetAddress: "",
+  city: "",
+  postalCode: "",
+  country: "",
 };
