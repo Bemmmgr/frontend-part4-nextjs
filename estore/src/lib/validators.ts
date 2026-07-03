@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { formatNumberWithDecimal } from "./utils";
+import { PAYMENT_METHODS } from "./constants";
 
 // 023
 // scheme for inserting products
@@ -105,3 +106,15 @@ export const shippingAddressSchema = z.object({
   lat: optionalCoordinate(-90, 90, "Latitude"),
   lng: optionalCoordinate(-180, 180, "Longitude"),
 });
+
+// 058 - payment method zod schema
+// 检查 data.type 是否在 PAYMENT_METHODS 数组里
+// 如果 .refine() 校验失败，错误应该挂到 type 这个字段
+export const paymentMethodSchema = z
+  .object({
+    type: z.string().min(1, "Payment method is required"),
+  })
+  .refine((data) => PAYMENT_METHODS.includes(data.type), {
+    path: ["type"],
+    message: "Invaild payment method",
+  });
