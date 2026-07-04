@@ -1,6 +1,6 @@
 "use server";
 
-import z, { success } from "zod";
+import z from "zod";
 import { auth, signIn, signOut } from "@/auth";
 import {
   shippingAddressSchema,
@@ -156,7 +156,7 @@ export async function updateUserPaymentMethod(
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
