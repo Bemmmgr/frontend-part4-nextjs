@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { createPrismaClient } from "../src/db/prisma";
+import { createPrismaClient } from "./prisma";
 import sampleData from "./sample-data";
 
 // 021 - seed sample data - 开发库初始化工作
