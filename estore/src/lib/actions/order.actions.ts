@@ -5,7 +5,6 @@ import { formatError } from "../utils";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
-import { redirect } from "next/navigation";
 import { insertOrderSchema } from "../validators";
 import { prisma } from "@/db/prisma";
 import { CartItem } from "@/types";
@@ -102,6 +101,6 @@ export async function createOrder() {
     };
   } catch (error) {
     if (isRedirectError(error)) throw error;
-    return { success: false, message: formatError(error) };
+    return { success: false, message: await formatError(error) };
   }
 }

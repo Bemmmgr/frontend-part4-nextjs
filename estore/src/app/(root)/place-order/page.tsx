@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Image from "next/image";
+import PlaceOrderForm from "./place-order-form";
 
 // 070 - place order page
 export const metadata: Metadata = {
@@ -79,9 +80,7 @@ const PlaceOrderPage = async () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Item</TableHead>
-                    <TableHead className="w-32 text-center">
-                      Quantity
-                    </TableHead>
+                    <TableHead className="w-32 text-center">Quantity</TableHead>
                     <TableHead className="w-32 text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -146,9 +145,7 @@ const PlaceOrderPage = async () => {
                 </div>
               </div>
 
-              <Button className="w-full" type="button">
-                Place Order
-              </Button>
+              <PlaceOrderForm />
             </CardContent>
           </Card>
         </div>
