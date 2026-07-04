@@ -12,13 +12,13 @@ function getDatabaseUrl() {
 
   if (!url) {
     throw new Error(
-      "DATABASE_URL is not set. Add your Neon Postgres connection string to .env."
+      "DATABASE_URL is not set. Add your Neon Postgres connection string to .env.",
     );
   }
 
   if (url.includes("pooled.db.prisma.io")) {
     throw new Error(
-      "DATABASE_URL is using a Prisma Postgres URL. @prisma/adapter-neon requires a Neon connection string."
+      "DATABASE_URL is using a Prisma Postgres URL. @prisma/adapter-neon requires a Neon connection string.",
     );
   }
 
@@ -39,6 +39,66 @@ export function createPrismaClient() {
         rating: {
           compute(product) {
             return product.rating.toString();
+          },
+        },
+      },
+      // 074 - format utility functions
+      cart: {
+        itemsPrice: {
+          needs: { itemsPrice: true },
+          compute(cart) {
+            return cart.itemsPrice.toString();
+          },
+        },
+        shippingPrice: {
+          needs: { shippingPrice: true },
+          compute(cart) {
+            return cart.shippingPrice.toString();
+          },
+        },
+        taxPrice: {
+          needs: { taxPrice: true },
+          compute(cart) {
+            return cart.taxPrice.toString();
+          },
+        },
+        totalPrice: {
+          needs: { totalPrice: true },
+          compute(cart) {
+            return cart.totalPrice.toString();
+          },
+        },
+      },
+      order: {
+        itemsPrice: {
+          needs: { itemsPrice: true },
+          compute(cart) {
+            return cart.itemsPrice.toString();
+          },
+        },
+        shippingPrice: {
+          needs: { shippingPrice: true },
+          compute(cart) {
+            return cart.shippingPrice.toString();
+          },
+        },
+        taxPrice: {
+          needs: { taxPrice: true },
+          compute(cart) {
+            return cart.taxPrice.toString();
+          },
+        },
+        totalPrice: {
+          needs: { totalPrice: true },
+          compute(cart) {
+            return cart.totalPrice.toString();
+          },
+        },
+      },
+      orderItem: {
+        price: {
+          compute(cart) {
+            return cart.price.toString();
           },
         },
       },
