@@ -21,14 +21,17 @@ export type CartItem = z.infer<typeof cartItemSchema>;
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>;
 
 // 059 - infer types of order & orderItems
-export type OrderItem = z.infer<typeof insertOrderItemSchema>;
+export type OrderItem = Omit<z.infer<typeof insertOrderItemSchema>, "quantity"> & {
+  orderId: string;
+  qty: number;
+};
 export type Order = z.infer<typeof insertOrderSchema> & {
   id: string;
   createdAt: Date;
   isPaid: boolean;
   paidAt: Date | null;
-  isDeilvered: boolean;
-  deilveredAt: Date | null;
+  isDelivered: boolean;
+  deliveredAt: Date | null;
   orderItems: OrderItem[];
   user: {
     name: string;
