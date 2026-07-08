@@ -10,7 +10,6 @@ import { prisma } from "@/db/prisma";
 import { CartItem, PaymentResult } from "@/types";
 import { paypal } from "../paypal";
 import { revalidatePath } from "next/cache";
-import { success } from "zod";
 
 // 071 - create order action
 // create order & create order items
@@ -140,9 +139,9 @@ export async function createPayPalOrder(orderId: string) {
       data: {
         paymentResult: {
           id: paypalOrder.id,
-          emailAddress: "",
-          status: "",
-          pricePaid: 0,
+          status: "CREATED",
+          email_address: "",
+          pricePaid: "0",
         },
       },
     });

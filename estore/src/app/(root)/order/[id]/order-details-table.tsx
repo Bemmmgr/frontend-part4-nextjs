@@ -10,13 +10,42 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fomatCurrency, formatDateTime, formatId } from "@/lib/utils";
 import { Order } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { fomatCurrency, formatDateTime, formatId } from "@/lib/utils";
+
+import {
+  PayPalButtons,
+  PayPalScriptProvider,
+  usePayPalScriptReducer,
+} from "@paypal/react-paypal-js";
+import {
+  createPayPalOrder,
+  approvePayPalOrder,
+} from "@/lib/actions/order.actions";
+import { toast } from "sonner";
+
+const PrintLoadingState = () => {
+  const [{ isPending, isRejected }] = usePayPalScriptReducer();
+
+  if (isPending) return "Loading PayPal...";
+  if (isRejected) return "Error Loading PayPal";
+
+  return null;
+};
 
 // 075 - order details table
-const OrderDetailsTable = ({ order }: { order: Order }) => {
+const OrderDetailsTable = ({
+  order,
+  paypalClientId,
+}: {
+  order: Order;
+  paypalClientId: string;
+}) => {
+  const router = useRouter();
+
   const {
     id,
     shippingAddress,
@@ -31,6 +60,34 @@ const OrderDetailsTable = ({ order }: { order: Order }) => {
     paidAt,
     deliveredAt,
   } = order;
+
+  const handleCreatePayPalOrder = async () => {
+    const response = await createPayPalOrder(order.id);
+    if (!response.success || !response.data) {
+      const message = response.message || "Failed to create PayPal order";
+      toast.error(message);
+      throw new Error(message);
+    }
+
+    return response.data;
+  };
+
+  const handleApprovePayPalOrder = async (data: { orderID: string }) => {
+    if (!data.orderID) {
+      toast.error("PayPal did not return an order ID");
+      return;
+    }
+
+    const response = await approvePayPalOrder(order.id, data);
+
+    if (!response.success) {
+      toast.error(response.message);
+      return;
+    }
+
+    toast.success(response.message);
+    router.refresh();
+  };
 
   return (
     <>
@@ -139,6 +196,30 @@ const OrderDetailsTable = ({ order }: { order: Order }) => {
                   <span>{fomatCurrency(totalPrice)}</span>
                 </div>
               </div>
+
+              {/* 084 - paypal payment */}
+              {!isPaid && paymentMethod === "PayPal" && (
+                <div>
+                  <PayPalScriptProvider
+                    options={{
+                      clientId: paypalClientId,
+                      currency: "USD",
+                      intent: "capture",
+                    }}
+                  >
+                    <PrintLoadingState />
+                    <PayPalButtons
+                      createOrder={handleCreatePayPalOrder}
+                      onApprove={handleApprovePayPalOrder}
+                      onCancel={() => toast.message("Payment cancelled")}
+                      onError={(error) => {
+                        console.error("PayPal error", error);
+                        toast.error("PayPal payment could not be completed");
+                      }}
+                    />
+                  </PayPalScriptProvider>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

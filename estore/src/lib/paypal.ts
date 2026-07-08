@@ -69,10 +69,44 @@ async function generateAccessToken() {
 async function handleResponse(response: Response) {
   if (response.ok) {
     return response.json();
-  } else {
-    const errorMessage = await response.text();
-    throw new Error(errorMessage);
   }
+
+  const errorText = await response.text();
+
+  let errorData:
+    | {
+        name?: string;
+        message?: string;
+        debug_id?: string;
+        details?: { issue?: string; description?: string }[];
+      }
+    | undefined;
+
+  try {
+    errorData = JSON.parse(errorText) as {
+      name?: string;
+      message?: string;
+      debug_id?: string;
+      details?: { issue?: string; description?: string }[];
+    };
+  } catch {
+    throw new Error(errorText || "PayPal request failed");
+  }
+
+  const details = errorData.details
+    ?.map((detail) => detail.description || detail.issue)
+    .filter(Boolean)
+    .join(" ");
+
+  throw new Error(
+    [
+      errorData.message || errorData.name || "PayPal request failed",
+      details,
+      errorData.debug_id ? `Debug ID: ${errorData.debug_id}` : undefined,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
 }
 
 export { generateAccessToken };
