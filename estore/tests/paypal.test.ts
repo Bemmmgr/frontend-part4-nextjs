@@ -1,6 +1,5 @@
 import { expect, jest, test } from "@jest/globals";
 import { generateAccessToken, paypal } from "@/lib/paypal";
-import { mock } from "node:test";
 
 // 079 - jest testing for access token
 // test to generate access token from paypal
@@ -15,7 +14,6 @@ test("creates a paypal order", async () => {
   const price = 10.0;
 
   const orderRes = await paypal.createOrder(price);
-  console.log(orderRes);
 
   expect(orderRes).toHaveProperty("id");
   expect(orderRes.status).toBe("CREATED");

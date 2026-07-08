@@ -6,6 +6,7 @@ import {
   shippingAddressSchema,
   insertOrderSchema,
   insertOrderItemSchema,
+  paymentresultSchema,
 } from "@/lib/validators";
 
 // 023 - zod calidation & type inference
@@ -21,10 +22,14 @@ export type CartItem = z.infer<typeof cartItemSchema>;
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>;
 
 // 059 - infer types of order & orderItems
-export type OrderItem = Omit<z.infer<typeof insertOrderItemSchema>, "quantity"> & {
+export type OrderItem = Omit<
+  z.infer<typeof insertOrderItemSchema>,
+  "quantity"
+> & {
   orderId: string;
   qty: number;
 };
+
 export type Order = z.infer<typeof insertOrderSchema> & {
   id: string;
   createdAt: Date;
@@ -38,3 +43,6 @@ export type Order = z.infer<typeof insertOrderSchema> & {
     email: string;
   };
 };
+
+// 082
+export type PaymentResult = z.infer<typeof paymentresultSchema>;
