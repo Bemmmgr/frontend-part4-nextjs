@@ -5,7 +5,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
 
 import type { NextAuthConfig } from "next-auth";
-import { cookies } from "next/headers";
 
 // 032 - nextAuth setup
 export const config = {
@@ -67,6 +66,11 @@ export const config = {
       // if there is an update, set the user name
       if (trigger === "update") {
         session.user.name = user.name;
+      }
+
+      // handle session update
+      if (session?.user.name && trigger === "update") {
+        token.name = session.user.name;
       }
 
       return session;
