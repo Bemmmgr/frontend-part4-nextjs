@@ -10,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserIcon } from "lucide-react";
-import { setEngine } from "crypto";
 
 // 039 - user button & signout
 const UserButton = async () => {
@@ -26,20 +25,23 @@ const UserButton = async () => {
       </Button>
     );
 
-  const firstInitial = session.user?.name?.charAt(0).toUpperCase() ?? "U";
+  const firstInitial =
+    session.user?.name?.trim().charAt(0).toUpperCase() ||
+    session.user?.email?.trim().charAt(0).toUpperCase() ||
+    "U";
 
   return (
     <div className="flex gap-2 items-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              className="relative w-8 h-8 rounded-full ml-2 flex items-center justify-center bg-gray-200"
-            >
-              {firstInitial}
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="User menu"
+            className="ml-2 size-8 shrink-0 rounded-full bg-gray-200 text-sm font-medium"
+          >
+            {firstInitial}
+          </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -65,6 +67,15 @@ const UserButton = async () => {
               Order History
             </Link>
           </DropdownMenuItem>
+
+          {/* 094 - admin item */}
+          {session?.user?.role === "admin" && (
+            <DropdownMenuItem>
+              <Link href="/admin/overview" className="w-full">
+                Admin
+              </Link>
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuItem className="p-0 mb-1">
             <form action={signOutUser} className="w-full">
