@@ -2,8 +2,10 @@ import { auth } from "@/auth";
 import { Metadata } from "next";
 import Link from "next/link";
 import Charts from "./charts";
+import { requireAdmin } from "@/lib/auth-guard";
 import type { LucideIcon } from "lucide-react";
 import { getOrderSummary } from "@/lib/actions/order.actions";
+
 import { BadgeDollarSign, Barcode, CreditCard, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fomatCurrency, formatDateTime, formatNumber } from "@/lib/utils";
@@ -50,6 +52,7 @@ const StatCard = ({
 };
 
 const AdminOverviewPage = async () => {
+  await requireAdmin();
   const session = await auth();
 
   if (session?.user?.role !== "admin")
