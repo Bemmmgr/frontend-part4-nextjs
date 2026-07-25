@@ -1,9 +1,10 @@
 import { auth } from "@/auth";
 import { Metadata } from "next";
-import { BadgeDollarSign, Barcode, CreditCard, Users } from "lucide-react";
+import Link from "next/link";
+import Charts from "./charts";
 import type { LucideIcon } from "lucide-react";
-
 import { getOrderSummary } from "@/lib/actions/order.actions";
+import { BadgeDollarSign, Barcode, CreditCard, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fomatCurrency, formatDateTime, formatNumber } from "@/lib/utils";
 import {
@@ -14,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
@@ -93,7 +93,7 @@ const AdminOverviewPage = async () => {
             <CardTitle className="text-lg font-bold">Overview</CardTitle>
           </CardHeader>
           <CardContent className="min-h-80 pt-2">
-            {/* Chart here */}
+            <Charts data={{ salesData: summary.salesData }} />
           </CardContent>
         </Card>
 
