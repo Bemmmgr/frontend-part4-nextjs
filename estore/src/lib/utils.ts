@@ -68,6 +68,13 @@ export function fomatCurrency(amount: number | string | null) {
   }
 }
 
+// Format number with thousands separators.
+const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
+
+export function formatNumber(number: number) {
+  return NUMBER_FORMATTER.format(number);
+}
+
 // 073 - order utility funcs
 // shorten UUID
 export function formatId(id: string) {
