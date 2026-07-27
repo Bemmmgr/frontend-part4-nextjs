@@ -40,6 +40,60 @@ const PrintLoadingState = () => {
   return null;
 };
 
+const MarkAsPaidButton = ({ orderId }: { orderId: string }) => {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <Button
+      type="button"
+      disabled={isPending}
+      onClick={() =>
+        startTransition(async () => {
+          const response = await updateOrderToPaidCOD(orderId);
+
+          if (!response.success) {
+            toast.error(response.message);
+            return;
+          }
+
+          toast.success(response.message);
+          router.refresh();
+        })
+      }
+    >
+      {isPending ? "Processing..." : "Mark As Paid"}
+    </Button>
+  );
+};
+
+const MarkAsDeliveredButton = ({ orderId }: { orderId: string }) => {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <Button
+      type="button"
+      disabled={isPending}
+      onClick={() =>
+        startTransition(async () => {
+          const response = await deliverOrder(orderId);
+
+          if (!response.success) {
+            toast.error(response.message);
+            return;
+          }
+
+          toast.success(response.message);
+          router.refresh();
+        })
+      }
+    >
+      {isPending ? "Processing..." : "Mark As Delivered"}
+    </Button>
+  );
+};
+
 // 075 - order details table
 const OrderDetailsTable = ({
   order,
@@ -93,60 +147,6 @@ const OrderDetailsTable = ({
 
     toast.success(response.message);
     router.refresh();
-  };
-
-  // button to mark order as paid
-  const MarkAsPaidButton = () => {
-    const [isPending, startTransition] = useTransition();
-
-    return (
-      <Button
-        type="button"
-        disabled={isPending}
-        onClick={() =>
-          startTransition(async () => {
-            const response = await updateOrderToPaidCOD(order.id);
-
-            if (!response.success) {
-              toast.error(response.message);
-              return;
-            }
-
-            toast.success(response.message);
-            router.refresh();
-          })
-        }
-      >
-        {isPending ? "Processing..." : "Mark As Paid"}
-      </Button>
-    );
-  };
-
-  // button to mark order as delivered
-  const MarkAsDeliveredButton = () => {
-    const [isPending, startTransition] = useTransition();
-
-    return (
-      <Button
-        type="button"
-        disabled={isPending}
-        onClick={() =>
-          startTransition(async () => {
-            const response = await deliverOrder(order.id);
-
-            if (!response.success) {
-              toast.error(response.message);
-              return;
-            }
-
-            toast.success(response.message);
-            router.refresh();
-          })
-        }
-      >
-        {isPending ? "Processing..." : "Mark As Delivered"}
-      </Button>
-    );
   };
 
   return (
@@ -283,10 +283,12 @@ const OrderDetailsTable = ({
 
               {/* Cash on delivery */}
               {isAdmin && !isPaid && paymentMethod === "CashOnDelivery" && (
-                <MarkAsPaidButton />
+                <MarkAsPaidButton orderId={order.id} />
               )}
 
-              {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />}
+              {isAdmin && isPaid && !isDelivered && (
+                <MarkAsDeliveredButton orderId={order.id} />
+              )}
             </CardContent>
           </Card>
         </div>
