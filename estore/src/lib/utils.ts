@@ -20,7 +20,7 @@ export function formatNumberWithDecimal(num: number): string {
 
 // 042 - sign up error handling
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function formatError(error: any) {
+export function formatError(error: any) {
   if (error.name === "ZodError") {
     const fieldErrors = Object.keys(error.errors).map(
       (field) => error.errors[field].message,

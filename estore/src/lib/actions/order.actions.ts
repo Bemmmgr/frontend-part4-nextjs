@@ -12,6 +12,7 @@ import { paypal } from "../paypal";
 import { revalidatePath } from "next/cache";
 import { PAGE_SIZE } from "../constants";
 import { Prisma } from "@/generated/prisma/client";
+import { success } from "zod";
 
 // 071 - create order action
 // create order & create order items
@@ -363,4 +364,22 @@ export async function getAllOrders({
   const dataCount = await prisma.order.count();
 
   return { data, totalPages: Math.ceil(dataCount / limit) };
+}
+
+// 0100 - Delete an order
+export async function deleteOrder(id: string) {
+  try {
+    await prisma.order.delete({
+      where: { id },
+    });
+
+    revalidatePath("/admin/orders");
+
+    return {
+      success: true,
+      message: "Order deleted successfully",
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
 }

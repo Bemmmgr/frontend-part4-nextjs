@@ -1,7 +1,9 @@
 import { auth } from "@/auth";
 import { Metadata } from "next";
-import { getAllOrders } from "@/lib/actions/order.actions";
+import { deleteOrder, getAllOrders } from "@/lib/actions/order.actions";
+import DeleteDialog from "@/components/shared/delete-dialog";
 import { fomatCurrency, formatDateTime, formatId } from "@/lib/utils";
+
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,7 +89,8 @@ const AdminOrdersPage = async (props: {
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/order/${order.id}`}>Details</Link>
                   </Button>
-                  {/* Delete button */}
+
+                  <DeleteDialog id={order.id} action={deleteOrder} />
                 </TableCell>
               </TableRow>
             ))}
