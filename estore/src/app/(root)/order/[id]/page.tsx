@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ShippingAddress } from "@/types";
 import { getOrderById } from "@/lib/actions/order.actions";
 import OrderDetailsTable from "./order-details-table";
+import { auth } from "@/auth";
 
 // 072 - order page
 export const metadata: Metadata = {
@@ -17,6 +18,9 @@ const OrderDetailsPage = async (props: {
   const { id } = await props.params;
   const order = await getOrderById(id);
 
+  // 101 - update order buttons(COD)
+  const session = await auth();
+
   if (!order) notFound();
 
   return (
@@ -26,6 +30,7 @@ const OrderDetailsPage = async (props: {
         shippingAddress: order.shippingAddress as ShippingAddress,
       }}
       paypalClientId={process.env.PAYPAL_CLIENT_ID || "sb"}
+      isAdmin={session?.user?.role === "admin" || false}
     />
   );
 };
