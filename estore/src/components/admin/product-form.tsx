@@ -276,12 +276,12 @@ const ProductForm = ({
                   <CardContent className="space-y-4 p-4">
                     {images.length > 0 && (
                       <div className="flex flex-wrap gap-3">
-                        {images.map((image) => (
+                        {images.map((image: string) => (
                           <Image
                             key={image}
                             src={image}
                             alt="product image"
-                            className="size-20 rounded-md border object-cover object-center"
+                            className="w-20 h-20 object-cover object-center rounded-sm"
                             width={100}
                             height={100}
                           />
@@ -291,10 +291,10 @@ const ProductForm = ({
                     <FormControl>
                       <UploadButton
                         endpoint="imageUploader"
-                        onClientUploadComplete={(res) => {
+                        onClientUploadComplete={(res: { url: string }[]) => {
                           if (!res?.[0]) return;
 
-                          form.setValue("images", [...images, res[0].ufsUrl], {
+                          form.setValue("images", [...images, res[0].url], {
                             shouldDirty: true,
                             shouldValidate: true,
                           });

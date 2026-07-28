@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
-import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
+import { createUploadthing, type FileRouter } from "uploadthing/next";
 
+// 0111 - uploadthing configuration
 const f = createUploadthing();
 
 export const ourFileRouter = {
