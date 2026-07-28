@@ -25,6 +25,15 @@ export async function getProductBySlug(slug: string) {
   });
 }
 
+// 115 - get single product by id
+export async function getProductById(productId: string) {
+  const data = await prisma.product.findFirst({
+    where: { id: productId },
+  });
+
+  return converToPlainObject(data);
+}
+
 // 104 - get products for admin action
 export async function getAllProducts({
   query,
