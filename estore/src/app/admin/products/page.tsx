@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getAllProducts } from "@/lib/actions/product.actions";
 import { formatId, fomatCurrency } from "@/lib/utils";
+import { getAllProducts, deleteProduct } from "@/lib/actions/product.actions";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Pagination from "@/components/shared/pagination";
@@ -14,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import DeleteDialog from "@/components/shared/delete-dialog";
 
 // 103 - get products for admin page
 const AdminProductsPage = async (props: {
@@ -133,7 +135,9 @@ const AdminProductsPage = async (props: {
                       <Button asChild variant="outline" size="sm">
                         <Link href={`/admin/products/${product.id}`}>Edit</Link>
                       </Button>
+
                       {/* Delete */}
+                      <DeleteDialog id={product.id} action={deleteProduct} />
                     </TableCell>
                   </TableRow>
                 ))}
