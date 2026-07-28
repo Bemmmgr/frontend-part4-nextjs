@@ -34,6 +34,11 @@ export const insetProductsSchema = z.object({
   price: currency,
 });
 
+// 107 - schema for updating products
+export const updateProductSchema = insetProductsSchema.extend({
+  id: z.string().min(1, "Id is required"),
+});
+
 // 033 - sign in & sign out
 // zod schema for signing users in
 export const signInFormSchema = z.object({
