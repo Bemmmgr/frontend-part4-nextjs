@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
 // 097 - monthly sales chart
@@ -8,6 +9,18 @@ const Charts = ({
 }: {
   data: { salesData: { month: string; totalSales: number }[] };
 }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setMounted(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  if (!mounted) return <div className="h-[350px]" />;
+
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={salesData}>
