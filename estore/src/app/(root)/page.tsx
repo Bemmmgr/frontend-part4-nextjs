@@ -1,24 +1,23 @@
 import ProductList from "@/components/shared/product/product-list";
-import { getLatestProducts } from "@/lib/actions/product.actions";
+import {
+  getLatestProducts,
+  getFeaturedProducts,
+} from "@/lib/actions/product.actions";
+import ProductCarousel from "@/components/shared/product/product-carousel";
 
 export const metadata = {
   title: "Home",
 };
 
-/*    test loading
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const HomePage = async () => {
-  await delay(2000);
-  return <>ProStore!</>;
-};
-*/
-
 const HomePage = async () => {
   const latestProducts = await getLatestProducts();
+  const featuredPRoducts = await getFeaturedProducts();
 
   return (
     <>
+      {featuredPRoducts.length > 0 && (
+        <ProductCarousel data={featuredPRoducts} />
+      )}
       <ProductList data={latestProducts} limit={4} title="Newest Arrivals" />
     </>
   );
