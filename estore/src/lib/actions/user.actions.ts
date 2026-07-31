@@ -16,6 +16,7 @@ import { formatError } from "../utils";
 import { ShippingAddress } from "@/types";
 import { PAGE_SIZE } from "../constants";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@/generated/prisma/client";
 
 // 034 - signIn & signOut actions
 // Sign in user with credentials
@@ -195,19 +196,39 @@ export async function updateProfile(user: { name: string; email: string }) {
 
 // 117 - get all users
 export async function getAllUsers({
+  query = "",
   limit = PAGE_SIZE,
   page,
 }: {
+  query?: string;
   limit?: number;
   page: number;
 }) {
+  const queryFilter: Prisma.UserWhereInput =
+    query && query !== "all"
+      ? {
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+            { role: { contains: query, mode: "insensitive" } },
+          ],
+        }
+      : {};
+
   const data = await prisma.user.findMany({
+    where: {
+      ...queryFilter,
+    },
     orderBy: { createdAt: "desc" },
     take: limit,
     skip: (page - 1) * limit,
   });
 
-  const dataCount = await prisma.user.count();
+  const dataCount = await prisma.user.count({
+    where: {
+      ...queryFilter,
+    },
+  });
 
   return {
     data,

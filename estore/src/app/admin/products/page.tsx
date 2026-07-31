@@ -41,7 +41,19 @@ const AdminProductsPage = async (props: {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="h2-bold tracking-normal">Products</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="h2-bold">Products</h1>
+            {searchText && (
+              <div>
+                Filtered by <i>&quot;{searchText}&quot;</i>{" "}
+                <Link href="/admin/products">
+                  <Button variant="outline" size="sm">
+                    Remove Filter
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
           <p className="text-sm text-muted-foreground">
             Manage product catalog, pricing, stock, and product details.
           </p>

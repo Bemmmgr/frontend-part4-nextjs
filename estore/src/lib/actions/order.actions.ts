@@ -347,20 +347,47 @@ export async function getOrderSummary() {
 
 // 099 - admin orders action - get all orders
 export async function getAllOrders({
+  query = "",
   limit = PAGE_SIZE,
   page,
 }: {
+  query?: string;
   limit?: number;
   page: number;
 }) {
+  const isUuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      query,
+    );
+
+  const queryFilter: Prisma.OrderWhereInput =
+    query && query !== "all"
+      ? isUuid
+        ? { id: query }
+        : {
+            user: {
+              is: {
+                name: { contains: query, mode: "insensitive" },
+              },
+            },
+          }
+      : {};
+
   const data = await prisma.order.findMany({
+    where: {
+      ...queryFilter,
+    },
     orderBy: { createdAt: "desc" },
     take: limit,
     skip: (page - 1) * limit,
     include: { user: { select: { name: true } } },
   });
 
-  const dataCount = await prisma.order.count();
+  const dataCount = await prisma.order.count({
+    where: {
+      ...queryFilter,
+    },
+  });
 
   return { data, totalPages: Math.ceil(dataCount / limit) };
 }
