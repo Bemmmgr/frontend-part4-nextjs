@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { APP_NAME } from "@/lib/constants";
 import CategoryDrawer from "./category-drawer";
+import Search from "./search";
 
 // 011 - Header & Footer components
 const Header = () => {
@@ -25,7 +26,9 @@ const Header = () => {
             </span>
           </Link>
         </div>
-
+        <div className="hidden md:block">
+          <Search />
+        </div>
         <Menu />
       </div>
     </header>
