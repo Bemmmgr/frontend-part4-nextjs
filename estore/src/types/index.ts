@@ -7,6 +7,7 @@ import {
   insertOrderSchema,
   insertOrderItemSchema,
   paymentresultSchema,
+  insertReviewSchema,
 } from "@/lib/validators";
 
 // 023 - zod calidation & type inference
@@ -46,3 +47,10 @@ export type Order = z.infer<typeof insertOrderSchema> & {
 
 // 082
 export type PaymentResult = z.infer<typeof paymentresultSchema>;
+
+// 137 - review type
+export type Review = z.infer<typeof insertReviewSchema> & {
+  id: string;
+  createdAt: Date;
+  user?: { name: string };
+};
