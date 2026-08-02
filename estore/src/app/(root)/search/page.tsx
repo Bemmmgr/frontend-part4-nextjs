@@ -40,6 +40,51 @@ const sortOrders = [
   { name: "Customer Rating", value: "rating" },
 ];
 
+const isFilterSet = (value?: string) =>
+  Boolean(value && value !== "all" && value.trim() !== "");
+
+const getPriceLabel = (value: string) =>
+  prices.find((p) => p.value === value)?.name ?? value;
+
+const getRatingLabel = (value: string) => `${value} stars & up`;
+
+export async function generateMetadata(props: {
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+    price?: string;
+    rating?: string;
+  }>;
+}) {
+  const {
+    q = "all",
+    category = "all",
+    price = "all",
+    rating = "all",
+  } = await props.searchParams;
+
+  const isQuerySet = isFilterSet(q);
+  const isCategorySet = isFilterSet(category);
+  const isPriceSet = isFilterSet(price);
+  const isRatingSet = isFilterSet(rating);
+
+  if (isQuerySet || isCategorySet || isPriceSet || isRatingSet) {
+    const titleParts = [
+      isQuerySet ? `Search: ${q}` : null,
+      isCategorySet ? `Department: ${category}` : null,
+      isPriceSet ? `Price: ${getPriceLabel(price)}` : null,
+      isRatingSet ? `Rating: ${getRatingLabel(rating)}` : null,
+    ].filter(Boolean);
+
+    return {
+      title: titleParts.join(" | "),
+    };
+  } else
+    return {
+      title: "Search Products",
+    };
+}
+
 const SearchPage = async (props: {
   searchParams: Promise<{
     q?: string;
@@ -58,9 +103,7 @@ const SearchPage = async (props: {
     sort = "newest",
     page = "1",
   } = await props.searchParams;
-  const activeSort = sortOrders.some((s) => s.value === sort)
-    ? sort
-    : "newest";
+  const activeSort = sortOrders.some((s) => s.value === sort) ? sort : "newest";
 
   // 131 - construct filter url
   const getFilterUrl = ({
@@ -150,18 +193,16 @@ const SearchPage = async (props: {
     </span>
   );
   const activeFilters = [
-    q !== "all" && q !== "" ? { label: "Search", value: q } : null,
-    category !== "all" && category !== ""
-      ? { label: "Department", value: category }
-      : null,
-    price !== "all" && price !== ""
+    isFilterSet(q) ? { label: "Search", value: q } : null,
+    isFilterSet(category) ? { label: "Department", value: category } : null,
+    isFilterSet(price)
       ? {
           label: "Price",
-          value: priceOptions.find((p) => p.value === price)?.name ?? price,
+          value: getPriceLabel(price),
         }
       : null,
-    rating !== "all" && rating !== ""
-      ? { label: "Rating", value: `${rating} stars & up` }
+    isFilterSet(rating)
+      ? { label: "Rating", value: getRatingLabel(rating) }
       : null,
   ].filter(
     (filter): filter is { label: string; value: string } => filter !== null,
