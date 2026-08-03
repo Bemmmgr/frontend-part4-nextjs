@@ -1,12 +1,14 @@
+import { auth } from "@/auth";
+import ReviewList from "./review-list";
 import { notFound } from "next/navigation";
+import { getMyCart } from "@/lib/actions/cart.actions";
 import { getProductBySlug } from "@/lib/actions/product.actions";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import AddToCart from "@/components/shared/product/add-to-cart";
 import ProductPrice from "@/components/shared/product/product-price";
 import ProductImages from "@/components/shared/product/product-image";
-import AddToCart from "@/components/shared/product/add-to-cart";
-import { getMyCart } from "@/lib/actions/cart.actions";
 
 // 025 - Product details page
 const ProductDetailPage = async (props: {
@@ -16,6 +18,10 @@ const ProductDetailPage = async (props: {
 
   const product = await getProductBySlug(slug);
   if (!product) notFound();
+
+  // 138 -
+  const session = await auth();
+  const userId = session?.user?.id;
 
   const cart = await getMyCart();
 
@@ -87,6 +93,16 @@ const ProductDetailPage = async (props: {
             </Card>
           </div>
         </div>
+      </section>
+
+      {/* 138 */}
+      <section className="mt-10">
+        <h2 className="h2-bold">Custom Reviews</h2>
+        <ReviewList
+          userId={userId || ""}
+          productId={product.id}
+          productSlug={product.slug}
+        />
       </section>
     </>
   );
