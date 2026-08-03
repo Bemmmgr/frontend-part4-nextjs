@@ -33,7 +33,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createUpdateReview } from "@/lib/actions/review.actions";
+import {
+  createUpdateReview,
+  getReviewByProductId,
+} from "@/lib/actions/review.actions";
 import { toast } from "sonner";
 
 const ratingOptions = [
@@ -71,16 +74,28 @@ const ReviewForm = ({
   });
 
   // open form handler
-  const handleOpenChange = (isOpen: boolean) => {
-    if (isOpen) {
+  const handleOpenChange = async (isOpen: boolean) => {
+    setOpen(isOpen);
+
+    if (!isOpen) return;
+
+    form.reset({
+      ...reviewFormDefaultValues,
+      productId,
+      userId,
+    });
+
+    const review = await getReviewByProductId({ productId });
+
+    if (review) {
       form.reset({
-        ...reviewFormDefaultValues,
+        title: review.title,
+        description: review.description,
+        rating: review.rating,
         productId,
         userId,
       });
     }
-
-    setOpen(isOpen);
   };
 
   // submit form handler

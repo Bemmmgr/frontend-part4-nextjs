@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import AddToCart from "@/components/shared/product/add-to-cart";
 import ProductPrice from "@/components/shared/product/product-price";
 import ProductImages from "@/components/shared/product/product-image";
+import Rating from "@/components/shared/product/rating";
 
 // 025 - Product details page
 const ProductDetailPage = async (props: {
@@ -39,9 +40,8 @@ const ProductDetailPage = async (props: {
                 {product.brand} {product.category}
               </p>
               <h1 className="h3-bold">{product.name}</h1>
-              <p>
-                {product.rating} of {product.numReviews} Reviews
-              </p>
+              <Rating value={Number(product.rating)} />
+              <p>{product.numReviews} reviews </p>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <ProductPrice
                   value={Number(product.price)}
