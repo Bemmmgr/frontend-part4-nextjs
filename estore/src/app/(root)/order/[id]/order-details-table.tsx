@@ -30,6 +30,7 @@ import {
   deliverOrder,
 } from "@/lib/actions/order.actions";
 import { toast } from "sonner";
+import StripePayment from "./stripe-payment";
 
 const PrintLoadingState = () => {
   const [{ isPending, isRejected }] = usePayPalScriptReducer();
@@ -99,10 +100,12 @@ const OrderDetailsTable = ({
   order,
   paypalClientId,
   isAdmin,
+  stripeClientSecret,
 }: {
   order: Order;
   paypalClientId: string;
   isAdmin: boolean;
+  stripeClientSecret: string | null;
 }) => {
   const router = useRouter();
 
@@ -279,6 +282,15 @@ const OrderDetailsTable = ({
                     />
                   </PayPalScriptProvider>
                 </div>
+              )}
+
+              {/* Stripe Payment */}
+              {!isPaid && paymentMethod === "Stripe" && stripeClientSecret && (
+                <StripePayment
+                  priceInCents={Number(order.totalPrice) * 100}
+                  orderId={order.id}
+                  clientSecret={stripeClientSecret}
+                />
               )}
 
               {/* Cash on delivery */}
